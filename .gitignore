@@ -26,3 +26,6 @@ bib/*/chapters/
 
 # Ignore cloned experiment repos (contents only, keep the folder)
 experiments/**
+
+# Ignore Python bytecode
+__pycache__/
