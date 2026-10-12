@@ -6,12 +6,13 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple
 
 import yaml
-from docling.document_converter import DocumentConverter
+from docling.document_converter import DocumentConverter, PdfFormatOption
+from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
 from bs4 import BeautifulSoup
 from markdownify import markdownify as md
 
 
-def safe_markdownify(html_content: str, max_recursion_depth: int = 100) -> str:
+def safe_markdownify(html_content: str, max_recursion_depth: int = 10000) -> str:
     """
     Safely convert HTML to markdown with recursion protection.
     
@@ -59,7 +60,8 @@ def safe_markdownify(html_content: str, max_recursion_depth: int = 100) -> str:
 def extract_pdf_text(file_path: Path, folder_name: str) -> str:
     """Extract text from PDF file using Docling"""
     try:
-        converter = DocumentConverter()
+        # docling-parse drops spaces in some LuaTeX PDFs; pdfium does not
+        converter = DocumentConverter(format_options={"pdf": PdfFormatOption(backend=PyPdfiumDocumentBackend)})
         result = converter.convert(str(file_path))
         markdown_content = result.document.export_to_markdown()
         return markdown_content
@@ -147,6 +149,14 @@ def extract_lesswrong_text(file_path: Path, folder_name: str, remove_base64_imag
         except Exception as e:
             print(f"Error extracting LessWrong text: {e}")
             return extract_html_text(file_path, folder_name, remove_base64_images), {}
+
+    post = soup.select_one('#postContent')
+    if not post:
+        return extract_html_text(file_path, folder_name, remove_base64_images), {}
+    markdown_content = safe_markdownify(str(post))
+    if remove_base64_images:
+        markdown_content = _remove_base64_images(markdown_content)
+    return markdown_content, {}
 
 
 class TextExtractor:

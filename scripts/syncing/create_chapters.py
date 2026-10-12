@@ -50,19 +50,19 @@ def find_chapter_headings(content: str) -> List[Tuple[int, str, str]]:
         r'^## +(ABSTRACT|ACKNOWLEDGMENTS?|CONCLUSION|REFERENCES?|INTRODUCTION|METHODOLOGY?|METHODS?|RESULTS?|DISCUSSION|LIMITATIONS?|FUTURE WORK)(?:\s|$)',
         
         # ## number word (e.g., ## 1 Introduction, ## 2.1 Methods)
-        r'^## +(\d+(?:\.\d+)*)\s+(.+)$',
+        r'^## +(\d+(?:\.\d+)*)\.?\s+(.+)$',
         
         # ## Appendix (standalone)
         r'^## +Appendix\s*$',
         
         # ## Appendix A Title (double # for appendix with letter and title)
-        r'^## +Appendix +([A-Z](?:\.\d+)*)\s+(.+)$'
+        r'^## +Appendix +([A-Z](?:\.\d+)*)\.?\s+(.+)$'
     ]
     
     # Patterns that only work after seeing appendix
     letter_patterns = [
         # ## Letter.number (e.g., ## B.1 CONFLICT VARIATIONS)
-        r'^## +([A-Z](?:\.\d+)*)\s+(.+)$',
+        r'^## +([A-Z](?:\.\d+)*)\.?\s+(.+)$',
         
         # ## Letter TITLE (e.g., ## B EXTENDED SENSITIVITY ANALYSIS)
         r'^## +([A-Z])\s+([A-Z][A-Z\s]+)$',
